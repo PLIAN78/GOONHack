@@ -1,0 +1,26 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+/* For NextAuth (we might or might not use full adapter later) */
+model User {
+  id    String  @id @default(cuid())
+  name  String?
+  email String? @unique
+  image String?
+}
+
+/* Your player in the fantasy game */
+model Player {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String
+  headline String?
+  score    Int     @default(0)
+}
