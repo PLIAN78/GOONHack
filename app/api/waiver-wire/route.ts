@@ -1,6 +1,10 @@
-import { NextResponse } from "next/server";
-import { waiverWire } from "@/data/founders";
+import { NextResponse } from 'next/server';
+import { waiverWire } from '@/data/founders';
 
 export async function GET() {
-  return NextResponse.json(waiverWire);
+  try {
+    return NextResponse.json(waiverWire);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch waiver wire' }, { status: 500 });
+  }
 }

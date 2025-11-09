@@ -1,15 +1,18 @@
-import { NextResponse } from "next/server";
-import { myTeam } from "@/data/founders";
+import { NextResponse } from 'next/server';
+
+// Mock leaderboard data (replace with database later)
+const mockLeaderboard = [
+  { rank: 1, username: "FounderFan2024", teamName: "Silicon Valley Elite", wins: 8, losses: 1, points: 2150 },
+  { rank: 2, username: "TechTitan", teamName: "Unicorn Hunters", wins: 7, losses: 2, points: 2040 },
+  { rank: 3, username: "VCViking", teamName: "Portfolio Winners", wins: 7, losses: 2, points: 1980 },
+  { rank: 4, username: "StartupStar", teamName: "The Disruptors", wins: 6, losses: 3, points: 1875 },
+  { rank: 5, username: "InnovatorX", teamName: "Growth Hackers", wins: 6, losses: 3, points: 1820 },
+];
 
 export async function GET() {
-  // sort by points, highest first
-  const sorted = [...myTeam].sort((a, b) => b.points - a.points);
-
-  // add rank for each
-  const withRank = sorted.map((player, index) => ({
-    rank: index + 1,
-    ...player,
-  }));
-
-  return NextResponse.json(withRank);
+  try {
+    return NextResponse.json(mockLeaderboard);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 });
+  }
 }
