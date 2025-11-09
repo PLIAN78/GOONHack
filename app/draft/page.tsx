@@ -84,83 +84,73 @@ export default function FounderBattle() {
     setLoading(true);
     setShowBattle(true);
 
-    // Generate battle using Claude API
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/battle", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 4000,
-          messages: [
-            {
-              role: "user",
-              content: `You are simulating a week-long LinkedIn fantasy founder battle. Generate realistic LinkedIn activities and engagement data for a matchup.
-
-Player's Team: ${draftedTeam.map(f => `${f.name} (${f.company})`).join(', ')}
-
-Generate:
-1. 15-25 realistic LinkedIn activities for the week (posts, comments, funding announcements, media features, milestones)
-2. Engagement metrics (likes, comments, shares) based on each founder's typical reach
-3. Point values for each activity
-4. Final stats for each founder
-
-Return ONLY a JSON object (no markdown, no preamble) with this structure:
-{
-  "activities": [
-    {
-      "founderId": 1,
-      "founderName": "Elon Musk",
-      "type": "post",
-      "description": "Shared thoughts on AI safety and regulation",
-      "points": 45,
-      "timestamp": "2025-11-03T10:30:00Z",
-      "engagement": { "likes": 45000, "comments": 2300, "shares": 890 }
-    }
-  ],
-  "founderStats": [
-    {
-      "founderId": 1,
-      "totalPoints": 185,
-      "activities": 4,
-      "topPerformance": "Viral post about Mars mission updates"
-    }
-  ]
-}
-
-Make activities realistic and diverse. Include different activity types: posts, comments, funding announcements, media mentions, company milestones.`
-            }
-          ],
-        })
+          draftedTeam: draftedTeam.map(({ id, name, company }) => ({
+            id,
+            name,
+            company,
+          })),
+        }),
       });
 
-      const data = await response.json();
-      const contentText = data.content.find((c: any) => c.type === 'text')?.text || '';
-      const cleanJson = contentText.replace(/```json\n?|\n?```/g, '').trim();
-      const battleData = JSON.parse(cleanJson);
+      // Read raw response first
+      const text = await response.text();
+
+      if (!response.ok) {
+  let message = `API error: ${response.status}`;
+  try {
+    const errJson = JSON.parse(text);
+    message = errJson.error || errJson.message || message;
+  } catch {
+    console.error("Non-JSON error from /api/battle:", text);
+  }
+  throw new Error(message);
+}
+
+
+      // Try to parse JSON success payload
+      let battleData: any;
+      try {
+        battleData = JSON.parse(text);
+      } catch {
+        console.error("Server returned non-JSON:", text);
+        throw new Error(
+          "Server returned non-JSON response. Check app/api/battle/route.ts and make sure it returns NextResponse.json(...)"
+        );
+      }
 
       // Calculate scores
       const playerScore = battleData.founderStats
-        .filter((s: any) => draftedTeam.some(f => f.id === s.founderId))
+        .filter((s: any) => draftedTeam.some((f) => f.id === s.founderId))
         .reduce((sum: number, s: any) => sum + s.totalPoints, 0);
 
       const opponentScore = battleData.founderStats
-        .filter((s: any) => !draftedTeam.some(f => f.id === s.founderId))
+        .filter((s: any) => !draftedTeam.some((f) => f.id === s.founderId))
         .reduce((sum: number, s: any) => sum + s.totalPoints, 0);
 
       setMatchResult({
         playerTeamScore: playerScore,
         opponentTeamScore: opponentScore,
-        winner: playerScore > opponentScore ? 'player' : opponentScore > playerScore ? 'opponent' : 'tie',
+        winner:
+          playerScore > opponentScore
+            ? "player"
+            : opponentScore > playerScore
+            ? "opponent"
+            : "tie",
         activities: battleData.activities,
-        founderStats: battleData.founderStats
+        founderStats: battleData.founderStats,
       });
-
     } catch (error) {
-      console.error('Battle generation failed:', error);
-      alert('Failed to generate battle. Please try again.');
+      console.error("Battle generation failed:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to generate battle. Please try again."
+      );
       setShowBattle(false);
     } finally {
       setLoading(false);
@@ -175,7 +165,9 @@ Make activities realistic and diverse. Include different activity types: posts, 
     }
   };
 
-  const opponentTeam = SAMPLE_FOUNDERS.filter(f => !draftedTeam.find(d => d.id === f.id)).slice(0, 8);
+  const opponentTeam = SAMPLE_FOUNDERS
+    .filter(f => !draftedTeam.find(d => d.id === f.id))
+    .slice(0, 8);
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -305,13 +297,21 @@ Make activities realistic and diverse. Include different activity types: posts, 
               <div className="text-5xl font-bold text-blue-600">{matchResult?.playerTeamScore || 0}</div>
             </div>
             <div className="text-center">
-              <Trophy className={`w-16 h-16 mx-auto mb-2 ${
-                matchResult?.winner === 'player' ? 'text-yellow-500' :
-                matchResult?.winner === 'opponent' ? 'text-gray-400' : 'text-orange-500'
-              }`} />
+              <Trophy
+                className={`w-16 h-16 mx-auto mb-2 ${
+                  matchResult?.winner === 'player'
+                    ? 'text-yellow-500'
+                    : matchResult?.winner === 'opponent'
+                    ? 'text-gray-400'
+                    : 'text-orange-500'
+                }`}
+              />
               <p className="text-2xl font-bold">
-                {matchResult?.winner === 'player' ? 'Victory!' :
-                 matchResult?.winner === 'opponent' ? 'Defeat' : 'Tie!'}
+                {matchResult?.winner === 'player'
+                  ? 'Victory!'
+                  : matchResult?.winner === 'opponent'
+                  ? 'Defeat'
+                  : 'Tie!'}
               </p>
             </div>
             <div className="text-center">
@@ -396,9 +396,11 @@ Make activities realistic and diverse. Include different activity types: posts, 
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-1">
                         <p className="font-bold">{activity.founderName}</p>
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${
-                          isPlayerTeam ? 'bg-blue-600 text-white' : 'bg-red-600 text-white'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-bold ${
+                            isPlayerTeam ? 'bg-blue-600 text-white' : 'bg-red-600 text-white'
+                          }`}
+                        >
                           +{activity.points} pts
                         </span>
                       </div>
@@ -415,7 +417,7 @@ Make activities realistic and diverse. Include different activity types: posts, 
                           month: 'short',
                           day: 'numeric',
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
                         })}
                       </p>
                     </div>
