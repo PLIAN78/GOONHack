@@ -42,9 +42,18 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            <button className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors">
+            <Link
+              href="/login"
+              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+            >
               Sign In
-            </button>
+            </Link>
+            <Link
+              href="/register"
+              className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
+            >
+              Sign Up
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -77,9 +86,20 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            <button className="w-full bg-primary-600 text-white px-4 py-2 rounded-md text-base font-medium hover:bg-primary-700 transition-colors mt-2">
+            <Link
+              href="/login"
+              className="block w-full text-center text-gray-700 hover:text-gray-900 px-4 py-2 rounded-md text-base font-medium transition-colors mt-2 border border-gray-300"
+              onClick={() => setMobileMenuOpen(false)}
+            >
               Sign In
-            </button>
+            </Link>
+            <Link
+              href="/register"
+              className="block w-full text-center bg-primary-600 text-white px-4 py-2 rounded-md text-base font-medium hover:bg-primary-700 transition-colors mt-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Sign Up
+            </Link>
           </div>
         )}
       </nav>
