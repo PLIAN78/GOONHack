@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -101,9 +102,14 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-xs text-slate-400 mt-4">
-          (For the hackathon you can hardcode a test user in the backend or use
-          Supabase.)
+        <p className="text-xs text-slate-400 mt-4 text-center">
+          Don't have an account?{" "}
+          <Link
+            href="/register"
+            className="text-emerald-400 hover:text-emerald-300 underline"
+          >
+            Sign up
+          </Link>
         </p>
       </div>
     </main>
