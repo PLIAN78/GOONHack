@@ -21,7 +21,7 @@ export const myTeam: Founder[] = [
     engagement: 8.5,
     points: 245,
     image: "https://via.placeholder.com/150",
-    linkedinUrl: "#",
+    linkedinUrl: "https://www.linkedin.com/company/real-elon-musk",
   },
   {
     id: 2,
@@ -32,7 +32,7 @@ export const myTeam: Founder[] = [
     engagement: 9.2,
     points: 198,
     image: "https://via.placeholder.com/150",
-    linkedinUrl: "#",
+    linkedinUrl: "https://www.linkedin.com/in/reidhoffman/",
   },
   {
     id: 3,
@@ -43,7 +43,7 @@ export const myTeam: Founder[] = [
     engagement: 9.8,
     points: 187,
     image: "https://via.placeholder.com/150",
-    linkedinUrl: "#",
+    linkedinUrl: "https://www.linkedin.com/in/samaltman",
   },
   {
     id: 4,
@@ -54,7 +54,7 @@ export const myTeam: Founder[] = [
     engagement: 8.1,
     points: 156,
     image: "https://via.placeholder.com/150",
-    linkedinUrl: "#",
+    linkedinUrl: "https://www.linkedin.com/in/drewhouston",
   },
   {
     id: 5,
@@ -65,7 +65,7 @@ export const myTeam: Founder[] = [
     engagement: 9.5,
     points: 142,
     image: "https://via.placeholder.com/150",
-    linkedinUrl: "#",
+    linkedinUrl: "https://www.linkedin.com/in/jenhsunhuang",
   },
 ];
 
@@ -80,7 +80,7 @@ export const waiverWire: Founder[] = [
     engagement: 8.7,
     points: 130,
     image: "https://via.placeholder.com/150",
-    linkedinUrl: "#",
+    linkedinUrl: "https://www.linkedin.com/in/brianchesky",
   },
   {
     id: 7,
@@ -91,6 +91,6 @@ export const waiverWire: Founder[] = [
     engagement: 9.1,
     points: 125,
     image: "https://via.placeholder.com/150",
-    linkedinUrl: "#",
+    linkedinUrl: "https://www.linkedin.com/in/whitneywolfeherd",
   },
 ];

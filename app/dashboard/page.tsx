@@ -1,14 +1,55 @@
+'use client'
+
 import { Trophy, TrendingUp, Users, Calendar } from 'lucide-react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+
+type SummaryData = {
+  teamSize: number
+  totalPoints: number
+  avgEngagement: number
+  leaderboard: Array<{
+    rank: number
+    id: number
+    name: string
+    points: number
+  }>
+}
 
 export default function Dashboard() {
-  // Mock data - replace with real data from API
+  const [summary, setSummary] = useState<SummaryData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchSummary() {
+      try {
+        const res = await fetch('/api/summary')
+        const data = await res.json()
+        setSummary(data)
+      } catch (error) {
+        console.error('Failed to fetch summary:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchSummary()
+  }, [])
+
+  if (loading || !summary) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">Loading...</div>
+      </div>
+    )
+  }
+
+  // Mock data for other stats (you can create additional APIs for these)
   const stats = {
     rank: 3,
     totalManagers: 12,
     wins: 8,
     losses: 4,
-    points: 1247,
+    points: summary.totalPoints,
   }
 
   const upcomingMatchups = [
@@ -40,7 +81,7 @@ export default function Dashboard() {
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-2">
             <TrendingUp className="w-8 h-8 text-green-500" />
-            <span className="text-2xl font-bold">{stats.points}</span>
+            <span className="text-2xl font-bold">{summary.totalPoints}</span>
           </div>
           <p className="text-gray-600">Total Points</p>
           <p className="text-sm text-green-600 mt-1">+127 this week</p>

@@ -1,86 +1,54 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Check, X } from 'lucide-react'
 import FounderCard from '@/components/FounderCard'
 
-// Mock founder data - replace with real LinkedIn API data
-const mockFounders = [
-  {
-    id: 1,
-    name: 'Elon Musk',
-    company: 'Tesla, SpaceX',
-    followers: '150M',
-    engagement: 8.5,
-    industry: 'Technology',
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-    available: true,
-  },
-  {
-    id: 2,
-    name: 'Reid Hoffman',
-    company: 'LinkedIn, Greylock',
-    followers: '2.5M',
-    engagement: 9.2,
-    industry: 'Technology',
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-    available: true,
-  },
-  {
-    id: 3,
-    name: 'Sam Altman',
-    company: 'OpenAI',
-    followers: '1.8M',
-    engagement: 9.8,
-    industry: 'AI',
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-    available: true,
-  },
-  {
-    id: 4,
-    name: 'Brian Chesky',
-    company: 'Airbnb',
-    followers: '1.2M',
-    engagement: 7.9,
-    industry: 'Travel',
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-    available: false,
-  },
-  {
-    id: 5,
-    name: 'Drew Houston',
-    company: 'Dropbox',
-    followers: '850K',
-    engagement: 8.1,
-    industry: 'Technology',
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-    available: true,
-  },
-  {
-    id: 6,
-    name: 'Jensen Huang',
-    company: 'NVIDIA',
-    followers: '2.1M',
-    engagement: 9.5,
-    industry: 'Technology',
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-    available: true,
-  },
-]
+type Founder = {
+  id: number
+  name: string
+  company: string
+  followers: string
+  engagement: number
+  industry?: string
+  image: string
+  linkedinUrl: string
+  available: boolean
+  position?: string
+  points?: number
+}
 
 export default function DraftPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedFounder, setSelectedFounder] = useState<number | null>(null)
   const [draftedFounders, setDraftedFounders] = useState<number[]>([])
   const [filter, setFilter] = useState<'all' | 'available' | 'drafted'>('all')
+  const [founders, setFounders] = useState<Founder[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filteredFounders = mockFounders.filter((founder) => {
+  useEffect(() => {
+    async function fetchFounders() {
+      try {
+        // Fetch from waiver wire for available founders
+        const res = await fetch('/api/waiver-wire')
+        const data = await res.json()
+        // Map the data to match your Founder type
+        const mappedFounders = data.map((f: any) => ({
+          ...f,
+          available: true,
+          industry: 'Technology', // You may want to add this to your API
+        }))
+        setFounders(mappedFounders)
+      } catch (error) {
+        console.error('Failed to fetch founders:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchFounders()
+  }, [])
+
+  const filteredFounders = founders.filter((founder) => {
     const matchesSearch = founder.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       founder.company.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesFilter = filter === 'all' || 
@@ -100,7 +68,15 @@ export default function DraftPage() {
     setDraftedFounders(draftedFounders.filter(id => id !== founderId))
   }
 
-  const myDraftedFounders = mockFounders.filter(f => draftedFounders.includes(f.id))
+  const myDraftedFounders = founders.filter(f => draftedFounders.includes(f.id))
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">Loading...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

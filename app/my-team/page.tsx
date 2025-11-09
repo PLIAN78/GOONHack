@@ -1,68 +1,51 @@
+'use client'
+
 import { Users, TrendingUp, ExternalLink, Edit2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-// Mock team data
-const myTeam = [
-  {
-    id: 1,
-    name: 'Elon Musk',
-    company: 'Tesla, SpaceX',
-    position: 'QB',
-    followers: '150M',
-    engagement: 8.5,
-    points: 245,
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-  },
-  {
-    id: 2,
-    name: 'Reid Hoffman',
-    company: 'LinkedIn, Greylock',
-    position: 'RB',
-    followers: '2.5M',
-    engagement: 9.2,
-    points: 198,
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-  },
-  {
-    id: 3,
-    name: 'Sam Altman',
-    company: 'OpenAI',
-    position: 'WR',
-    followers: '1.8M',
-    engagement: 9.8,
-    points: 187,
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-  },
-  {
-    id: 4,
-    name: 'Drew Houston',
-    company: 'Dropbox',
-    position: 'TE',
-    followers: '850K',
-    engagement: 8.1,
-    points: 156,
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-  },
-  {
-    id: 5,
-    name: 'Jensen Huang',
-    company: 'NVIDIA',
-    position: 'K',
-    followers: '2.1M',
-    engagement: 9.5,
-    points: 142,
-    image: 'https://via.placeholder.com/150',
-    linkedinUrl: '#',
-  },
-]
-
-const totalPoints = myTeam.reduce((sum, founder) => sum + founder.points, 0)
-const avgEngagement = (myTeam.reduce((sum, founder) => sum + founder.engagement, 0) / myTeam.length).toFixed(1)
+type Founder = {
+  id: number
+  name: string
+  company: string
+  position: string
+  followers: string
+  engagement: number
+  points: number
+  image: string
+  linkedinUrl: string
+}
 
 export default function MyTeamPage() {
+  const router = useRouter()
+  const [myTeam, setMyTeam] = useState<Founder[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchTeam() {
+      try {
+        const res = await fetch('/api/my-team')
+        const data = await res.json()
+        setMyTeam(data)
+      } catch (error) {
+        console.error('Failed to fetch team:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTeam()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">Loading...</div>
+      </div>
+    )
+  }
+
+  const totalPoints = myTeam.reduce((sum, founder) => sum + founder.points, 0)
+  const avgEngagement = (myTeam.reduce((sum, founder) => sum + founder.engagement, 0) / myTeam.length).toFixed(1)
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 flex items-center justify-between">
@@ -72,7 +55,10 @@ export default function MyTeamPage() {
             Manage your roster and track your founders' performance
           </p>
         </div>
-        <button className="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors flex items-center gap-2">
+        <button 
+          onClick={() => router.push('/draft')}
+          className="bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors flex items-center gap-2"
+        >
           <Edit2 className="w-5 h-5" />
           Edit Roster
         </button>
@@ -142,10 +128,21 @@ export default function MyTeamPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                    title="View LinkedIn Profile"
                   >
                     <ExternalLink className="w-5 h-5" />
                   </a>
-                  <button className="text-gray-400 hover:text-gray-600">
+                  <button 
+                    onClick={() => {
+                      if (confirm(`Remove ${founder.name} from your team? You can add them back from the waiver wire.`)) {
+                        // In a real app, you'd make an API call here to remove the founder
+                        // For now, we'll just navigate to the waiver wire page
+                        router.push('/draft')
+                      }
+                    }}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    title="Edit or Remove Founder"
+                  >
                     <Edit2 className="w-5 h-5" />
                   </button>
                 </div>
@@ -175,7 +172,10 @@ export default function MyTeamPage() {
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <h3 className="text-xl font-bold mb-4">Quick Actions</h3>
           <div className="space-y-3">
-            <button className="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <button 
+              onClick={() => router.push('/draft')}
+              className="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            >
               <p className="font-semibold">Add from Waiver Wire</p>
               <p className="text-sm text-gray-600">Browse available founders</p>
             </button>
